@@ -1,0 +1,35 @@
+server:
+  port: 9401
+spring:
+  profiles:
+    active: dev
+  application:
+    name: oauth2-auth
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.0.33:5432/psnl_position?useUnicode=true&characterEncoding=utf8&currentSchema=auth
+    username: postgres
+    password: 123456
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  redis:
+    database: 0
+    port: 6379
+    host: 192.168.0.237
+    password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.237:8848
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+mybatis-plus:
+  type-aliases-package: com.mine.manager.plan.mapper
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

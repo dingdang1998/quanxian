@@ -1,0 +1,14 @@
+# Nacos帮助文档: https://nacos.io/zh-cn/docs/concepts.html
+# Nacos认证信息
+spring:
+  cloud:
+    nacos:
+      server-addr: 192.168.0.237:8848
+      username: nacos
+      password: nacos
+
+
+## 设置配置中心服务端地址
+## Nacos 配置中心的namespace。需要注意，如果使用 public 的 namcespace ，请不要填写这个值，直接留空即可
+## spring.cloud.nacos.config.namespace=
+

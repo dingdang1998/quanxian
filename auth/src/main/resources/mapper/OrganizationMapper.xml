@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.oket.micro.auth.dao.OrganizationDao">
+
+   <!-- <select id="queryAllChilsOrganizationsByPidAndName"  resultType="com.oarage.common.privilege.entity.Organization" >
+        select id companyCode,id id,company_name companyName,remarks,parent_id parentCode,parent_id parentId,rank parentCodes,type,status,address
+        from sys_org
+        where 1=1 and locate(concat(',',#{parentCode},','),rank)
+        <if test="companyName!=null and companyName!=''">
+          and company_name like concat('%',#{companyName},'%')
+        </if>
+        <if test="status!=null and status!=''">
+            and status = #{status}
+        </if>
+        order by type DESC
+    </select>
+    <select id="getChildsByParentIdAndName"  resultType="com.oarage.common.privilege.entity.Organization" >
+        select id companyCode,id id,company_name companyName,remarks,parent_id parentCode,parent_id parentId,rank parentCodes,type,status,address
+        from sys_org
+        where status=1 and parent_id=#{parentCode}
+        <if test="companyName!=null and companyName!=''">
+            and company_name like concat('%',#{companyName},'%')
+        </if>
+        order by type DESC
+    </select>
+
+    <select id="queryAllChilStationsByPids"  resultType="string" >
+      select id companyCode
+      from sys_org
+      where status=1 and type=1 and
+        <foreach item="item" collection="list" separator=" or " open="(" close=")" index="">
+            locate(concat(',',#{item},','),rank)
+        </foreach>
+    </select>
+    <select id="getStationsParents" resultType="map" >
+        select distinct a.id companyCode ,a.id id,a.company_name companyName ,a.parent_id parentCode,a.parent_id parentId,a.rank parentCodes
+        from sys_org a
+        join (select parent_id from sys_org where status=1 and type=1
+                and id in
+                <foreach item="item" collection="list" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+              ) b on b.parent_id=a.id
+        where a.status=1 and a.type=0
+    </select>-->
+
+    <!--<select id="getCompanyCodesByUsername" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            sys_user_company.company_id companyCode
+        FROM
+            sys_user
+        JOIN sys_user_company ON user_id = sys_user.id
+        WHERE
+            username =  #{username}
+    </select>-->
+
+   <!-- <insert id="saveOrg" >
+        insert into sys_org(parent_id,rank,company_name,address,type,status,remarks,company_code)
+         values(#{parentId},#{parentIds},#{companyName},#{address},#{type},#{status},#{remarks},#{companyCode})
+    </insert>-->
+    <update id="updateOrg">
+        update sys_org set id=id
+        <if test="companyName!=null and companyName!=''">
+            ,company_name=#{companyName}
+        </if>
+        <if test="address!=null and address!=''">
+            ,address=#{address}
+        </if>
+        <if test="type!=null and type!=''">
+            ,type=#{type}
+        </if>
+        <if test="status!=null and status!=''">
+            ,status=#{status}
+        </if>
+        <if test="remarks!=null and remarks!=''">
+            ,remarks=#{remarks}
+        </if>
+        <if test="parentIds!=null and parentIds!=''">
+            ,rank=#{parentIds}
+        </if>
+        <if test="parentId!=null and parentId!=''">
+            ,parent_id=#{parentId}
+        </if>
+        <if test="companyCode!=null and companyCode!=''">
+            ,company_code=#{companyCode}
+        </if>
+        where id=#{id}
+    </update>
+    <update id="updateOrgsStatus">
+        update sys_org set status=#{status}
+        where position ( concat ( ',',#{id}, ',' ) in parent_ids ) >0
+    </update>
+
+    <!--<select id="queryAllChildCompanyByPidsAndUsername"  resultType="string" >
+        select id companyCode
+        from sys_org ss
+        left join (select suc.*
+        from sys_user_company suc
+        left join sys_user su on su.id = suc.user_id
+        where su.username = #{username}) s on s.company_id = ss.id
+        where ss.status=1 and
+        <foreach item="item" collection="parentCodes" separator=" or " open="(" close=")" index="">
+            locate(concat(',',#{item},','),ss.rank)
+        </foreach>
+    </select>-->
+    <select id="queryAllChilsOrganizationsByPid" resultType="com.oket.micro.auth.entity.Organization">
+        select * from sys_org where  1=1
+        <if test="status!=null and status!=''">
+            and status=#{status}
+        </if>
+        and position ( concat ( ',',#{parentId}, ',' ) in parent_ids ) >0 order by type DESC
+    </select>
+    <select id="getChildsByParentId" resultType="com.oket.micro.auth.entity.Organization">
+        select * from sys_org where 1=1
+        <if test="status!=null and status!=''">
+            and status=#{status}
+        </if>
+        and parent_id=#{parentId} order by type DESC
+    </select>
+    <select id="getOrganizationByIds" resultType="com.oket.micro.auth.entity.Organization">
+        select * from sys_org where 1=1
+        <if test="status!=null and status!=''">
+            and status=#{status}
+        </if>
+        and id in (${ids}) order by type DESC
+    </select>
+
+</mapper>

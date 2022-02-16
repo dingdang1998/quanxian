@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oket.micro.auth.dao.PermissionDao">
+
+    <select id="selectListByUserId" resultType="com.oket.micro.auth.entity.SysPermission">
+        SELECT
+            distinct d.*
+        FROM
+            sys_user a
+            JOIN sys_user_role b ON a.id = b.user_id
+            JOIN sys_role_fun c ON b.role_id = c.role_id
+            JOIN sys_fun d ON c.fun_id = d.id
+        WHERE 1=1
+        <if test="userId!=null ">
+            and a.id = #{userId}
+        </if>
+        <if test="funName!=null ">
+            and d.fun_name like concat('%',#{funName},'%')
+        </if>
+        <if test="type!=null ">
+            and d.type = #{type}
+        </if>
+        order by d.id
+        <if test="offSet!=null and pageRow!=null ">
+            LIMIT #{offSet}, #{pageRow}
+        </if>
+  </select>
+    <insert id="saveAdminRoleFun" >
+        insert into sys_role_fun (role_id,fun_id) values
+        (#{roleId},#{funId})
+    </insert>
+</mapper>

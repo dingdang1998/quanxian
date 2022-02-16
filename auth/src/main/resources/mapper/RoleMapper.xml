@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oket.micro.auth.dao.RoleDao">
+
+    <resultMap id="roleResultMap" type="com.oket.micro.auth.dto.RoleDto">
+        <result property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <collection property="funIds" select="com.oket.micro.auth.dao.RoleDao.getFunByRoleId" column="id"/>
+    </resultMap>
+    <select id="getFunByRoleId" resultType="integer" parameterType="int">
+        select distinct fun.id from sys_fun fun
+        join sys_role_fun rf on rf.fun_id=fun.id
+        where rf.role_id=#{role_id}
+    </select>
+    <select id="selectListByUserId" resultMap="roleResultMap">
+        SELECT
+            c.*,d.org_name
+        FROM
+            sys_user a
+            JOIN sys_user_role b ON a.id = b.user_id
+            JOIN sys_role c ON c.id = b.role_id
+            join sys_org d on c.org_id=d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+        order by c.id
+        <if test="offSet!=null and pageRow!=null ">
+            LIMIT #{pageRow} offset #{offSet}
+        </if>
+    </select>
+    <select id="selectListByUserIdCount" resultType="int">
+        SELECT
+        count(1)
+        FROM
+        sys_user a
+        JOIN sys_user_role b ON a.id = b.user_id
+        JOIN sys_role c ON c.id = b.role_id
+        join sys_org d on c.org_id=d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+    </select>
+    <select id="selectListByUser" resultMap="roleResultMap">
+        SELECT distinct
+        c.*,d.org_name
+        FROM
+        sys_user a
+        JOIN sys_user_org b ON a.id = b.user_id
+        join sys_org d on b.org_id=d.id
+        JOIN sys_role c ON c.org_id = d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+        order by c.id
+        <if test="offSet!=null and pageRow!=null ">
+            LIMIT #{pageRow} offset #{offSet}
+        </if>
+    </select>
+    <select id="selectListByUserCount" resultType="int">
+        SELECT
+        count(1)
+        from
+        (SELECT distinct
+        c.*,d.org_name
+        FROM
+        sys_user a
+        JOIN sys_user_org b ON a.id = b.user_id
+        join sys_org d on b.org_id=d.id
+        JOIN sys_role c ON c.org_id = d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+        ) a
+    </select>
+    <select id="selectAllList" resultMap="roleResultMap">
+        SELECT
+        c.*,d.org_name
+        FROM
+        sys_role c
+        join sys_org d on c.org_id=d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <!--<if test="orgId!=null and orgId!=''">
+            and c.org_id = #{orgId}
+        </if>-->
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+        order by c.id
+        <if test="offSet!=null and pageRow!=null ">
+            LIMIT #{pageRow} offset #{offSet}
+        </if>
+    </select>
+    <select id="selectAllListCount" resultType="int">
+        SELECT
+        count(1)
+        FROM
+        sys_role c
+        join sys_org d on c.org_id=d.id
+        WHERE 1=1
+        <if test="userId!=null and userId!=''">
+            and a.id = #{userId}
+        </if>
+        <!--<if test="orgId!=null and orgId!=''">
+            and c.org_id = #{orgId}
+        </if>-->
+        <if test="roleName!=null and roleName!=''">
+            and c.role_name like concat('%',#{roleName},'%')
+        </if>
+    </select>
+    <delete id="deleteRoleFunByRoleId" >
+        delete from sys_role_fun where role_id=#{roleId}
+    </delete>
+    <delete id="deleteUserRoleByRoleId" >
+        delete from sys_user_role where role_id=#{roleId}
+    </delete>
+    <select id="selectListByOrgId" resultType="com.oket.micro.auth.dto.RoleDto">
+        SELECT
+        c.*,d.org_name
+        FROM
+        sys_role c
+        join sys_org d on c.org_id=d.id
+        WHERE c.org_id = #{orgId}
+    </select>
+    <insert id="saveRoleFun" parameterType="com.oket.micro.auth.entity.SysRole">
+        insert into sys_role_fun (role_id,fun_id) values
+        <foreach collection="funIdList" index="index" item="funId" separator="," >
+            (#{id},#{funId})
+        </foreach>
+    </insert>
+
+    <select id="queryListByOrg" resultMap="roleResultMap">
+        SELECT
+        c.*,d.org_name
+        FROM
+        sys_role c
+        join sys_org d on c.org_id=d.id
+        WHERE 1=1
+            and c.org_id = #{orgId}
+
+    </select>
+    <select id="queryRoleIdsByFun" resultType="string">
+        select distinct a.role_id from sys_role_fun a
+        where a.fun_id=#{funId}
+    </select>
+</mapper>

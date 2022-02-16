@@ -1,0 +1,85 @@
+server:
+  port: 9201
+spring:
+  profiles:
+    active: dev
+  application:
+    name: oauth2-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.237:8848
+    gateway:
+      routes: #配置路由规则
+        - id: oauth2-auth-route
+          uri: lb://oauth2-auth
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: datacenter-route
+          uri: lb://datacenter
+          predicates:
+            - Path=/datacenter/**
+          filters:
+            - StripPrefix=1
+
+        - id: monitor-api
+          uri: lb://monitor
+          predicates:
+            - Path=/monitor/api/**
+          filters:
+            - StripPrefix=1
+
+        - id: monitor-websocket
+          uri: lb:ws://monitor
+          predicates:
+            - Path=/monitor/websocket/**
+          filters:
+            - StripPrefix=1
+      discovery:
+        locator:
+          # 这个可以从注册中心把服务拉到本地，动态生成路由 配置这个之后，上面的断言就不需要配置了，访问路径会被映射成 ip/server_name/path
+          enabled: true
+          #使用小写服务名，默认是大写
+          lower-case-service-id: true
+      #options请求跨域配置响应头后，正常请求会出现两次重复响应头，以此来过滤掉
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Credentials Access-Control-Allow-Origin, RETAIN_UNIQUE
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://localhost:9401/rsa/publicKey' #配置RSA的公钥访问地址
+  redis:
+    database: 7
+    port: 6379
+    host: 192.168.0.237
+    password: 123456
+secure:
+  ignore:
+    urls: #配置白名单路径
+      - "/actuator/**"
+      - "/auth/oauth/token"
+      - "/auth/login"
+      - "/doc.html"
+      - "/webjars/**"
+      - "/swagger-resources/**"
+      - "/swagger/**"
+      - "/**/v2/api-docs"
+      - "/**/*.js"
+      - "/**/*.css"
+      - "/**/*.png"
+      - "/**/*.ico"
+      - "/internal/orgFilter"
+      - "/monitor/websocket/**"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+#是否启用数据权限过滤
+oket:
+  enableOrgFilter: true

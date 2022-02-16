@@ -1,0 +1,8 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.oket.micro.common.config.RestTemplateConfig,\
+  com.oket.micro.common.config.MybatisPlusConfig,\
+  com.oket.micro.common.config.RedisTemplateConfig,\
+  com.oket.micro.common.util.SpringContextHolder,\
+  com.oket.micro.common.util.LoginUserHolder,\
+  com.oket.micro.common.exception.GlobalExceptionHandler
+  
